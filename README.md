@@ -5,3 +5,5 @@ Burp Tutorial -- https://medium.com/@uhabiba503/a-step-by-step-guide-to-using-bu
 
 Next.js -- https://www.tutorialspoint.com/nextjs/nextjs_overview.htm
 tryhackme
+
+QGIS--------https://www.qgistutorials.com/en/
