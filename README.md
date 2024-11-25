@@ -7,3 +7,4 @@ Next.js -- https://www.tutorialspoint.com/nextjs/nextjs_overview.htm
 tryhackme
 
 QGIS--------https://www.qgistutorials.com/en/
+            https://docs.qgis.org/3.34/en/docs/training_manual/index.html
