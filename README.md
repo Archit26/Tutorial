@@ -8,3 +8,4 @@ tryhackme
 
 QGIS--------https://www.qgistutorials.com/en/
             https://docs.qgis.org/3.34/en/docs/training_manual/index.html
+            https://courses.spatialthoughts.com/introduction-to-qgis.html
