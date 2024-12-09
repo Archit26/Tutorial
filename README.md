@@ -11,3 +11,6 @@ QGIS--------https://www.qgistutorials.com/en/
             https://courses.spatialthoughts.com/introduction-to-qgis.html
 
 React------  https://react-tutorial.app/
+
+
+Next API------  https://medium.com/@santoshbusiness108/create-api-in-next-js-2dd1a126b00ds
