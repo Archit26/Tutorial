@@ -24,4 +24,7 @@ A prompt..........................................
 I am a software developer who also holds a master degree in data science and wants to start a career in data science. suggest me some projects to showcase relevant skills and some skills which I can accquire.
 
 
+books----------------
+https://github.com/shahumar/Free-Machine-Learning-Books/tree/master/book
+
 
