@@ -14,3 +14,14 @@ React------  https://react-tutorial.app/
 
 
 Next API------  https://medium.com/@santoshbusiness108/create-api-in-next-js-2dd1a126b00ds
+
+
+
+
+A prompt..........................................
+
+
+I am a software developer who also holds a master degree in data science and wants to start a career in data science. suggest me some projects to showcase relevant skills and some skills which I can accquire.
+
+
+
