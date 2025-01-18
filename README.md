@@ -27,4 +27,10 @@ I am a software developer who also holds a master degree in data science and wan
 books----------------
 https://github.com/shahumar/Free-Machine-Learning-Books/tree/master/book
 
+A Tutorial on "fashion recommendation system using image features from scratch with code":
+
+https://thecleverprogrammer.com/2024/02/05/fashion-recommendation-system-using-image-features/
+
+
+
 
