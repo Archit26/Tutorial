@@ -32,5 +32,7 @@ A Tutorial on "fashion recommendation system using image features from scratch w
 https://thecleverprogrammer.com/2024/02/05/fashion-recommendation-system-using-image-features/
 
 
+for datasets:
 
+https://stackoverflow.com/questions/963041/data-sets-for-neural-network-training
 
