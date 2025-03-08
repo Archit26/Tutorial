@@ -1,0 +1,428 @@
+encryption.js
+
+
+function encryptId(key, id) {
+    var i = 0;
+	var result = "";
+	var length = id.length;
+	var keySubstring = key.substring(0, length); 
+	for (i = 0; i < keySubstring.length; ++i) {
+		result += String.fromCharCode(id.charCodeAt(i) ^ key.charCodeAt(i));
+	}
+	
+	return result;
+}
+
+function submitForm(id,formname,parametername) {
+    var key = '@#*&@#$%^&*(**)(*)!@@!##';
+    var encryptedId = encryptId(key, id); 
+
+    document.getElementById(parametername).value = encryptedId; 
+    document.getElementById(formname).submit(); 
+}
+
+function encryptValue(id){
+	var key = '@#*&@#$%^&*(**)(*)!@@!##';
+    var result = "";
+    var length = id.length;
+    var keyLength = key.length;
+
+    // Use the modulus operator to wrap around the key if id is longer
+    for (var i = 0; i < length; ++i) {
+        var keyChar = key.charCodeAt(i % keyLength); // Wrap around the key
+        var idChar = id.charCodeAt(i);
+        result += String.fromCharCode(idChar ^ keyChar);
+    }
+
+    return result;
+}
+
+----------------------------------------------------------------------------------------------------------------------------------------
+SessionFilter.java
+
+package com.sttl.easi.filter;
+
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.security.Principal;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+import java.util.Set;
+import java.util.UUID;
+
+import javax.servlet.FilterChain;
+import javax.servlet.FilterConfig;
+import javax.servlet.RequestDispatcher;
+import javax.servlet.ServletException;
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletRequestWrapper;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+import javax.sql.DataSource;
+
+import org.apache.commons.fileupload.FileItem;
+import org.apache.commons.fileupload.disk.DiskFileItemFactory;
+import org.apache.commons.fileupload.servlet.ServletFileUpload;
+import org.apache.commons.lang3.StringUtils;
+import org.hibernate.Query;
+import org.hibernate.SessionFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.annotation.Order;
+import org.springframework.http.HttpStatus;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.security.authentication.InsufficientAuthenticationException;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.web.access.intercept.FilterSecurityInterceptor;
+
+import com.google.common.net.HttpHeaders;
+import com.sttl.easi.model.LoggedUser;
+
+@Order(1)
+public class SessionFilter extends FilterSecurityInterceptor {
+
+	private final String SESSION_PATH_ATTRIBUTE = ";Path=";
+	private final String ROOT_CONTEXT = "/";
+	private final String SAME_SITE_ATTRIBUTE_VALUES = ";HttpOnly;Secure;SameSite=LAX";
+	private static final long MAX_FILE_SIZE = 10 * 1024 * 1024; // 10 MB
+	String result = "";
+	
+	public Connection getConnection() {
+		Connection cn = null;
+		try {
+			Class.forName("org.postgresql.Driver");
+
+			cn = DriverManager.getConnection("jdbc:postgresql://localhost:5432/eASI_SilverTouch", "postgres","root");
+			//cn = DriverManager.getConnection("jdbc:postgresql://10.194.81.95:5432/eASI", "postgres","b@TWaM!mgs#22#$");
+		} catch (Exception e1) {
+		}
+		return cn;
+	}
+
+	@Override
+	public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
+			throws IOException, ServletException {
+		HttpServletRequest req = (HttpServletRequest) request;
+		HttpServletResponse resp = (HttpServletResponse) response; // Cast to HttpServletResponse
+		String requestUrl = req.getRequestURL().toString();
+		
+		int role = 0;
+		String contextPathUrl = req.getServletContext().getContextPath();
+		String requestPath = req.getRequestURI();
+		String referer = req.getHeader("Referer");
+		String httpMethod = req.getMethod();
+		if (referer != null) {
+			
+		} else {
+			
+
+		
+
+		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+		if (authentication != null && authentication.getPrincipal() instanceof LoggedUser) {
+			LoggedUser currentUser = (LoggedUser) authentication.getPrincipal();
+			role = currentUser.getRole_id();
+			Map<String, Set<String>> userwithagent = (Map<String, Set<String>>) req.getSession()
+					.getAttribute("UserAgent");
+			Set<String> agent;
+			if (userwithagent == null) {
+				userwithagent = new HashMap<String, Set<String>>();
+				agent = new HashSet<String>();
+			} else {
+				agent = userwithagent.get(authentication.getName());
+			}
+			if (agent == null) {
+				agent = new HashSet<String>();
+			}
+			agent.add(req.getHeader("User-Agent"));
+			userwithagent.put(authentication.getName(), agent);
+			req.getSession().setAttribute("UserAgent", userwithagent);
+			Set<String> browser = userwithagent.get(authentication.getName());
+			if (browser.size() > 1) {
+				resp.sendRedirect("login");
+				return;
+			}
+
+		}
+
+		List<String> excludeUrls = Arrays.asList("/login", "/logout", "/dashboard", "/resources", "/forgotPassword","/changeUserPassword");
+		boolean shouldExclude = excludeUrls.stream().anyMatch(requestUrl::contains);
+		if (shouldExclude) {
+		} else {
+
+			result = requestUrl.replace(req.getRequestURL().toString().substring(0,
+					requestUrl.indexOf(contextPathUrl) + contextPathUrl.length()), "");
+
+			
+
+			boolean status = true;
+			try {
+				status = PermitPage(role, result);
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
+			if (status == false) {
+				RequestDispatcher dispatcher = req.getRequestDispatcher("/Access_Denied");
+				dispatcher.forward(request, response);
+				return;
+
+			}
+		}
+		}
+		Cookie[] cookies = req.getCookies();
+		if (cookies != null && cookies.length > 0) {
+			String contextPath = req.getServletContext() != null
+					&& StringUtils.isNotBlank(req.getServletContext().getContextPath())
+							? req.getServletContext().getContextPath()
+							: ROOT_CONTEXT;
+
+			for (Cookie cookie : cookies) {
+				String cookieHeader = cookie.getName() + "=" + cookie.getValue() + SESSION_PATH_ATTRIBUTE + contextPath
+						+ SAME_SITE_ATTRIBUTE_VALUES;
+				resp.setHeader("Set-Cookie", cookieHeader);
+			}
+		}
+		String urll = requestUrl.replace(req.getRequestURL().toString().substring(0,requestUrl.indexOf(contextPathUrl) + contextPathUrl.length()), "");
+		
+		if ("application/json".equals(req.getContentType())) {
+	        SanitizingRequestWrapper wrappedRequest = new SanitizingRequestWrapper(req);
+	        chain.doFilter(wrappedRequest, response);
+	    } else {
+	    	if(!urll.contains("/resources")) {
+			 String encryptedId =  req.getParameter("encryptId");
+		        if (encryptedId != null) {
+		        	//edit or action with id
+		        	Integer decryptedId = descrypt(encryptedId);
+		        	  System.err.println("URL::"+urll);
+		        	  RequestDispatcher dispatcher = req.getRequestDispatcher(urll+"?id=" + decryptedId);
+		              dispatcher.forward(req, resp);
+		        }else if(urll.contains("update")){
+		        	 Map<String, String[]> decryptedParams = new HashMap<>(request.getParameterMap());
+		        	 if (decryptedParams.containsKey("id")) {
+		                 String[] idValues = decryptedParams.get("id");
+		                 for (int i = 0; i < idValues.length; i++) {
+		                     if (idValues[i] != null && !idValues[i].isEmpty()) {
+		                         idValues[i] = descryptUpdate(idValues[i]); // Decrypt the id
+		                     }
+		                 }
+		             }
+		        	 HttpServletRequest wrappedRequest = new HttpServletRequestWrapper(req) {
+		                 @Override
+		                 public String getParameter(String name) {
+		                     String[] values = decryptedParams.get(name);
+		                     return (values != null && values.length > 0) ? values[0] : null;
+		                 }
+
+		                 @Override
+		                 public String[] getParameterValues(String name) {
+		                     return decryptedParams.get(name);
+		                 }
+
+		                 @Override
+		                 public Map<String, String[]> getParameterMap() {
+		                     return decryptedParams;
+		                 }
+		             };
+
+		             // Continue the filter chain with the wrapped request
+		             chain.doFilter(wrappedRequest, response);
+		        }
+		        else {
+		        	// add or action without id
+		        	chain.doFilter(req, resp);
+		        }
+	    }else {
+	    	//for all urls of resource
+	    	chain.doFilter(req, resp);
+	    }
+	    }
+	}
+
+	public boolean PermitPage(int role, String url) throws SQLException {
+		Connection conn = null;
+		String name = "", query = "";
+		ResultSet resultSet = null;
+		conn = getConnection();
+		Statement stmtp = conn.createStatement();
+
+		query = "SELECT rpm.role_id, mm.name as module_name, pm.name as page_name, pm.url as page_url "
+				+ "FROM public.permission rpm " + "JOIN public.module_master mm ON rpm.module_id = mm.id "
+				+ "JOIN public.page_master pm ON rpm.page_id = pm.id " + "WHERE rpm.role_id = '" + role + "' "
+				+ "AND rpm.read_allowed = true " ;
+
+		resultSet = stmtp.executeQuery(query);
+		List<Boolean> matchResults = new ArrayList<>();
+
+		while (resultSet.next()) {
+
+			int roleId = resultSet.getInt("role_id");
+			String moduleName = resultSet.getString("module_name");
+			String pageName = resultSet.getString("page_name");
+			String pageUrl = resultSet.getString("page_url");
+
+			boolean isMatch = url.contains(pageUrl);
+			matchResults.add(isMatch);
+
+		}
+		resultSet.close();
+		stmtp.close();
+		conn.close();
+
+		for (Boolean match : matchResults) {
+			if (match) {
+				return true;
+			}
+		}
+		return false;
+	}
+	public Integer descrypt(String encString) {
+		String keyProperty = "@#*&@#$%^&*(**)(*)!@@!##";
+		StringBuilder decString= new StringBuilder();
+		int length = encString.length();
+		 String keySubstring = keyProperty.substring(0, Math.min(length, keyProperty.length()));
+		 for (int i = 0; i < keySubstring.length(); i++) {
+			 char encryptedChar = (char) (encString.charAt(i) ^ keySubstring.charAt(i));
+			  decString.append((char) encryptedChar);
+		}
+		Integer decryptedString = Integer.parseInt(decString.toString());
+		 return decryptedString;
+	}
+	public String descryptUpdate(String id) {
+		String key = "@#*&@#$%^&*(**)(*)!@@!##";
+        StringBuilder result = new StringBuilder();
+        int length = id.length();
+        int keyLength = key.length();
+
+        for (int i = 0; i < length; i++) {
+            char idChar = id.charAt(i);
+            char keyChar = key.charAt(i % keyLength); // Wrap around the key
+            char xorChar = (char) (idChar ^ keyChar); // Perform XOR
+            result.append(xorChar);
+        }
+
+        return result.toString();
+	}
+}
+
+
+---------------------------------------------------------------------------------------------------------------------------------------------------------
+FinancialYear.jsp
+<form action="saveFinancialYear" method="POST"
+						id="frmNewFinancialYear">
+<c:if test="${can_edit eq true }"><a href="#" class="tooltip-top" data-tooltip="Edit" onclick="submitForm('${fyList.id}','financialYear','formId')"><!-- <i class="fa fa-edit"></i> -->Edit</a></c:if>
+<form id="financialYear" action="/eASI/budget/editFinancialYear" method="POST" style="display: none;">
+    <input type="hidden" name="encryptId" id="formId" value="" />
+</form>
+<c:otherwise><c:if test="${can_edit eq true }"><input type="button" value="Update" class="sim-button btnnrml
+" id="buttonSubmit" onclick="encryptAndSubmit();" /></c:if></c:otherwise>
+function encryptAndSubmit() {
+    var id =  document.getElementById('hid').value;
+    document.getElementById('hid').value = encryptValue(id);
+    document.getElementById('frmNewFinancialYear').submit();
+}
+
+------------------------------------------------------------------------------------------------------------------
+FinancialYearController    # RequestParam highlight # No change in Update
+
+@RequestMapping(value = "/editFinancialYear", method = RequestMethod.POST)
+	public ModelAndView editFinancialYear(@RequestParam(value="id", required = false) Integer id,@ModelAttribute FinancialYear financialYear, HttpServletRequest request, 
+			HttpServletResponse response, RedirectAttributes redirectAttributes) {
+		Map<String, Object> model = new HashMap<String, Object>();
+		//Integer id = formId;
+		try {
+			 roleSvc.urlBasePermissionInModel("/budget/financialYear", model);
+			model.put("financialYearEdit",financialYearService.findFinancialYearById(id));
+			model.put("financialYearList", financialYearService.getAllFinancialYears());	
+			
+		} catch (Exception e) {
+			LOGGER.error(e.getMessage());
+			e.printStackTrace();
+		}
+		model.put("isEdit", true);				
+		return new ModelAndView("budget/financialYear",model);
+	}
+	
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------
+officeData.jsp
+
+
+<c:if test="${can_edit eq true }"><a href="#" class="tooltip-top" data-tooltip="Edit" onclick="c"><!-- <i class="fa fa-edit"></i> -->Edit</a></c:if>
+
+<form id="officeDataEdit" action="edit" method="POST" style="display: none;">
+    <input type="hidden" name="encryptId" id="formId" value="" />
+</form>
+---------------------------------------------------------------------------------------------------------------------------------------------------------
+OfficeDataController
+
+@RequestMapping(value={"/edit"}, method = RequestMethod.POST)
+	public ModelAndView editOfficeData(@RequestParam(value="id", required = false) Integer id)  {
+		Map<String, Object> model = new HashMap<String, Object>();
+		try {
+			model=commonDropDown();
+			model.put("isEdit", true);
+			model.put("officeData", officeDataService.getOfficeDataByID(id));
+		} catch (Exception e) {
+			LOGGER.error(e.getMessage());
+			e.printStackTrace();
+		}
+		return new ModelAndView("budget/addOfficeData", model);
+	}
+	---------------------------------------------------------------------------------------------------------------------------
+	addOffice.jsp
+	
+	<input type="hidden" name="id" id="officeDataId" value="${officeData.id}"/>
+	<c:when test="${isEdit}">
+										<input value="Update" type="button" onclick="updateOfficeData()"> <a href="#">
+									</c:when>	
+									
+									function updateOfficeData() {
+		var hid = $("#officeDataId").val();
+		var dd = encryptValue(hid);a
+		 $("#officeDataId").val(dd);
+		document.frmAddOfficeData.action="${pageContext.request.contextPath}/budget/updateOfficeData";
+		$("#frmAddOfficeData").submit();
+	}
+----------------------------------------------------------------------------
+list.jsp
+
+<a
+											href="#"
+											class="tooltip-top" data-tooltip="View" onclick="submitForm('${filmingDocumentry.id}','ViewForm','formId')"><i
+												class="fa fa-eye" ></i></a>
+												
+<form id="ViewForm" action="/eASI/centralAntiquityCollection/filmingDocumentationObject/view" method="POST" style="display: none;">
+    <input type="hidden" name="encryptId" id="formId" value="" />
+</form>
+-----------------------------------------------------------------------------------------------
+FilmingDocumeentryObjectController
+
+@RequestMapping(value="/view" , method=RequestMethod.POST)
+	public String viewFlmingDocumentryObject(@RequestParam(value="id", required = false) Integer id	,Model model)
+-------------------------------------------------------------------------------------------------
+letterlist.jsp
+
+<td><a
+												href="#"
+												class="tooltip-top" data-tooltip="View" onclick="submitForm('${filmingDocumentry.id}','letterList','formId')"> Letter
+													Generation</a></td>
+<form id="letterList" action="centralAntiquityCollection/filmingDocumentationObject/authorizationLetter" method="POST" style="display: none;">
+    <input type="hidden" name="encryptId" id="formId" value="" />
+</form>	
+-------------------------------------------------------------------------------------------------------------------
+GeneratedAuthorizationletter.jsp
+
+//continue fro here
