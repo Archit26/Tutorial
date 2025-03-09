@@ -1,0 +1,672 @@
+Authorizationletter.jsp
+
+<%@ page language="java" contentType="text/html; charset=ISO-8859-1"
+	pageEncoding="ISO-8859-1" isELIgnored="false"%>
+<%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
+<head>
+<title>jQuery UI Autocomplete - Multiple, remote</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.14.1/jquery-ui.min.js"></script>\
+<link href='https://cdnjs.cloudflare.com/ajax/libs/froala-editor/2.8.4/css/froala_editor.min.css' rel='stylesheet' type='text/css' />
+<link href='https://cdnjs.cloudflare.com/ajax/libs/froala-editor/2.8.4/css/froala_style.min.css' rel='stylesheet' type='text/css' />
+ 
+<!-- Include JS file. -->
+<script type='text/javascript' src='https://cdnjs.cloudflare.com/ajax/libs/froala-editor/4.4.0/js/froala_editor.min.js'></script>
+
+<script>
+	$(function() {
+		function split(val) {
+			return val.split(/ \s*/);
+		}
+		function extractLast(term) {
+			return split(term).pop();
+		}
+
+		$("#subject")
+				// don't navigate away from the field on tab when selecting an item
+				.on(
+						"keydown",
+						function(event) {
+							if (event.keyCode === $.ui.keyCode.TAB
+									&& $(this).autocomplete("instance").menu.active) {
+								event.preventDefault();
+							}
+						})
+				.autocomplete(
+						{
+							source : function(request, response) {
+								$
+										.getJSON(
+												"${pageContext.request.contextPath}/resources/dataset/data.json",
+												{
+													term : extractLast(request.term)
+												}, response);
+							},
+							search : function() {
+								// custom minLength
+								var term = extractLast(this.value);
+								if (term.length < 2) {
+									return false;
+								}
+							},
+							focus : function() {
+								// prevent value inserted on focus
+								return false;
+							},
+							select : function(event, ui) {
+								var terms = split(this.value);
+								// remove the current input
+								terms.pop();
+								// add the selected item
+								terms.push(ui.item.value);
+								// add placeholder to get the comma-and-space at the end
+								terms.push("");
+								this.value = terms.join("  ");
+								return false;
+							}
+						});
+	});
+</script>
+<script>
+	$(function() {
+		function split(val) {
+			return val.split(/ \s*/);
+		}
+		function extractLast(term) {
+			return split(term).pop();
+		}
+
+		$("#detail")
+				// don't navigate away from the field on tab when selecting an item
+				.on(
+						"keydown",
+						function(event) {
+							if (event.keyCode === $.ui.keyCode.TAB
+									&& $(this).autocomplete("instance").menu.active) {
+								event.preventDefault();
+							}
+						})
+				.autocomplete(
+						{
+							source : function(request, response) {
+								$
+										.getJSON(
+												"${pageContext.request.contextPath}/resources/dataset/data.json",
+												{
+													term : extractLast(request.term)
+												}, response);
+							},
+							search : function() {
+								// custom minLength
+								var term = extractLast(this.value);
+								if (term.length < 2) {
+									return false;
+								}
+							},
+							focus : function() {
+								// prevent value inserted on focus
+								return false;
+							},
+							select : function(event, ui) {
+								var terms = split(this.value);
+								// remove the current input
+								terms.pop();
+								// add the selected item
+								terms.push(ui.item.value);
+								// add placeholder to get the comma-and-space at the end
+								terms.push("");
+								this.value = terms.join("  ");
+								return false;
+							}
+						});
+	});
+	
+
+</script>
+
+    <script type="text/javascript">
+    function valuedata(){
+    	var hid =  $("#hid").val();
+    	var dd = encryptValue(hid);
+    	$("#hid").val(dd);
+    	  $("#input").val(window.location.pathname);
+    	$('#form1').submit();
+    }
+  
+    </script>
+    <style type="text/css">
+    
+     .a { text-align: right}
+
+   
+    </style>
+    
+</head>
+
+<body>
+	<div class="col-md-9 right-sidebar right-section">
+		<div class="main-content">
+
+			<div class="page-header">
+				<button class="menu-toggle bg-none">
+					<img src="<c:url value='/resources/img/menu-icon.jpg'/>"
+						alt="toogle">
+				</button>
+				
+				<ol class="breadcrumb">
+					<li><a href="#">Filming/Documentary of Objects </a><i class="icon-angle-right"></i></li>
+					<li class="active"> Permission Letter for Filming/Documentary of Objects22</li>
+				</ol>
+			</div>
+			<div class="page-content boxMain">
+				<div class="innersection">
+					<div>
+						<h3 class="title"> Permission Letter for Filming/Documentary of Objects</h3>
+					</div>
+					<form:form action="generateauthorizationletter"  method="GET" id="form1"
+						modelAttribute="authorizationLetterModule" >
+						<form:input value="${eaid}" id="hid" path="alid"  name="alid" hidden="true"/>
+						<form:input path="nameofmodule" id="input" name="input" hidden="true" />
+						<div class="row">
+						<div class="col-md-4"><b>From:</b>
+						<form:textarea id="from_add" name="from_add"   type="text" path="from_add" required="required"
+							style="min-height: 100px;" ></form:textarea>
+						</div></div>
+					<div class="row" align="right">
+					<div class="col-md-4"  align="right">
+					</div>
+					<div class="col-md-4" align="right">
+					</div>
+						<div class="col-md-4" align="right">
+						<b>To:</b>
+							<form:textarea id="to_address" name="to_address"  type="text" path="to_address" required="required"
+							style="min-height: 100px;" onkeypress="return isAlphaNumericNumbers(event);"></form:textarea>
+						</div>
+						</div>
+						
+						<div class="ui-widget">
+						
+						
+							<label>Subject</label> <form:input type="text" id="subject" path="subject"
+								name="subject"  required="required" />
+						</div>
+
+
+						<label>Detail</label>
+						<form:textarea id="detail" name="detail" type="text" path="detail" required="required"
+							style="min-height: 100px;" onkeypress="return isAlphaNumericNumbers(event);"></form:textarea>
+
+
+						<div class="row text-center">
+							<div class="col-md-3"></div>
+
+
+							<div class="text-center btn-design">
+								<input class="btn btn-success" type="submit" name="submit" onclick="valuedata()"
+									value="Generate Authorization Letter">
+									<a href="<c:url value='/centralAntiquityCollection/filmingDocumentationObject/list'/>">
+								<button onclick="clear()" class="btn btn-danger "  type="button">Cancel</button>
+								</a>
+							</div>
+
+							<div class="col-md-3"></div>
+						</div>
+					</form:form>
+					</div>
+					<script>
+//   $(function() {
+//     $('textarea#detail').froalaEditor()
+    
+//   });
+</script>
+					
+				</div>
+			</div>
+		</div>
+</body>					
+
+---------------------------------------------------------------------------------------------------
+
+SessionFilter.java
+
+
+
+
+package com.sttl.easi.filter;
+
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.security.Principal;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+import java.util.Set;
+import java.util.UUID;
+
+import javax.servlet.FilterChain;
+import javax.servlet.FilterConfig;
+import javax.servlet.RequestDispatcher;
+import javax.servlet.ServletException;
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletRequestWrapper;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+import javax.sql.DataSource;
+
+import org.apache.commons.fileupload.FileItem;
+import org.apache.commons.fileupload.disk.DiskFileItemFactory;
+import org.apache.commons.fileupload.servlet.ServletFileUpload;
+import org.apache.commons.lang3.StringUtils;
+import org.hibernate.Query;
+import org.hibernate.SessionFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.annotation.Order;
+import org.springframework.http.HttpStatus;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.security.authentication.InsufficientAuthenticationException;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.web.access.intercept.FilterSecurityInterceptor;
+
+import com.google.common.net.HttpHeaders;
+import com.sttl.easi.model.LoggedUser;
+
+@Order(1)
+public class SessionFilter extends FilterSecurityInterceptor {
+
+	private final String SESSION_PATH_ATTRIBUTE = ";Path=";
+	private final String ROOT_CONTEXT = "/";
+	private final String SAME_SITE_ATTRIBUTE_VALUES = ";HttpOnly;Secure;SameSite=LAX";
+	private static final long MAX_FILE_SIZE = 10 * 1024 * 1024; // 10 MB
+	String result = "";
+	
+	public Connection getConnection() {
+		Connection cn = null;
+		try {
+			Class.forName("org.postgresql.Driver");
+
+			cn = DriverManager.getConnection("jdbc:postgresql://localhost:5432/eASI_SilverTouch", "postgres","root");
+			//cn = DriverManager.getConnection("jdbc:postgresql://10.194.81.95:5432/eASI", "postgres","b@TWaM!mgs#22#$");
+		} catch (Exception e1) {
+		}
+		return cn;
+	}
+
+	@Override
+	public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
+			throws IOException, ServletException {
+		HttpServletRequest req = (HttpServletRequest) request;
+		HttpServletResponse resp = (HttpServletResponse) response; // Cast to HttpServletResponse
+		String requestUrl = req.getRequestURL().toString();
+		
+		int role = 0;
+		String contextPathUrl = req.getServletContext().getContextPath();
+		String requestPath = req.getRequestURI();
+		String referer = req.getHeader("Referer");
+		String httpMethod = req.getMethod();
+		if (referer != null) {
+			
+		} else {
+			
+
+		
+
+		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+		if (authentication != null && authentication.getPrincipal() instanceof LoggedUser) {
+			LoggedUser currentUser = (LoggedUser) authentication.getPrincipal();
+			role = currentUser.getRole_id();
+			Map<String, Set<String>> userwithagent = (Map<String, Set<String>>) req.getSession()
+					.getAttribute("UserAgent");
+			Set<String> agent;
+			if (userwithagent == null) {
+				userwithagent = new HashMap<String, Set<String>>();
+				agent = new HashSet<String>();
+			} else {
+				agent = userwithagent.get(authentication.getName());
+			}
+			if (agent == null) {
+				agent = new HashSet<String>();
+			}
+			agent.add(req.getHeader("User-Agent"));
+			userwithagent.put(authentication.getName(), agent);
+			req.getSession().setAttribute("UserAgent", userwithagent);
+			Set<String> browser = userwithagent.get(authentication.getName());
+			if (browser.size() > 1) {
+				resp.sendRedirect("login");
+				return;
+			}
+
+		}
+
+		List<String> excludeUrls = Arrays.asList("/login", "/logout", "/dashboard", "/resources", "/forgotPassword","/changeUserPassword");
+		boolean shouldExclude = excludeUrls.stream().anyMatch(requestUrl::contains);
+		if (shouldExclude) {
+		} else {
+
+			result = requestUrl.replace(req.getRequestURL().toString().substring(0,
+					requestUrl.indexOf(contextPathUrl) + contextPathUrl.length()), "");
+
+			
+
+			boolean status = true;
+			try {
+				status = PermitPage(role, result);
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
+			if (status == false) {
+				RequestDispatcher dispatcher = req.getRequestDispatcher("/Access_Denied");
+				dispatcher.forward(request, response);
+				return;
+
+			}
+		}
+		}
+		Cookie[] cookies = req.getCookies();
+		if (cookies != null && cookies.length > 0) {
+			String contextPath = req.getServletContext() != null
+					&& StringUtils.isNotBlank(req.getServletContext().getContextPath())
+							? req.getServletContext().getContextPath()
+							: ROOT_CONTEXT;
+
+			for (Cookie cookie : cookies) {
+				String cookieHeader = cookie.getName() + "=" + cookie.getValue() + SESSION_PATH_ATTRIBUTE + contextPath
+						+ SAME_SITE_ATTRIBUTE_VALUES;
+				resp.setHeader("Set-Cookie", cookieHeader);
+			}
+		}
+		String urll = requestUrl.replace(req.getRequestURL().toString().substring(0,requestUrl.indexOf(contextPathUrl) + contextPathUrl.length()), "");
+		
+		if ("application/json".equals(req.getContentType())) {
+	        SanitizingRequestWrapper wrappedRequest = new SanitizingRequestWrapper(req);
+	        chain.doFilter(wrappedRequest, response);
+	    } else {
+	    	if(!urll.contains("/resources")) {
+			 String encryptedId =  req.getParameter("encryptId");
+		        if (encryptedId != null) {
+		        	//edit or action with id
+		        	Integer decryptedId = descrypt(encryptedId);
+		        	  System.err.println("URL::"+urll);
+		        	  RequestDispatcher dispatcher = req.getRequestDispatcher(urll+"?id=" + decryptedId);
+		              dispatcher.forward(req, resp);
+		        }else if(urll.contains("update") || urll.contains("generateauthorizationletter")){
+		        	 Map<String, String[]> decryptedParams = new HashMap<>(request.getParameterMap());
+		        	 if(urll.contains("generateauthorizationletter")) {
+		        		 if (decryptedParams.containsKey("alid")) {
+			                 String[] idValues = decryptedParams.get("alid");
+			                 for (int i = 0; i < idValues.length; i++) {
+			                     if (idValues[i] != null && !idValues[i].isEmpty()) {
+			                         idValues[i] = descryptUpdate(idValues[i]); // Decrypt the id
+			                     }
+			                 }
+		             }else {
+		            	 if (decryptedParams.containsKey("id")) {
+			                 String[] idValues = decryptedParams.get("id");
+			                 for (int i = 0; i < idValues.length; i++) {
+			                     if (idValues[i] != null && !idValues[i].isEmpty()) {
+			                         idValues[i] = descryptUpdate(idValues[i]); // Decrypt the id
+			                     }
+			                 }
+		             }
+		        }
+		        	 HttpServletRequest wrappedRequest = new HttpServletRequestWrapper(req) {
+		                 @Override
+		                 public String getParameter(String name) {
+		                     String[] values = decryptedParams.get(name);
+		                     return (values != null && values.length > 0) ? values[0] : null;
+		                 }
+
+		                 @Override
+		                 public String[] getParameterValues(String name) {
+		                     return decryptedParams.get(name);
+		                 }
+
+		                 @Override
+		                 public Map<String, String[]> getParameterMap() {
+		                     return decryptedParams;
+		                 }
+		             };
+
+		             // Continue the filter chain with the wrapped request
+		             chain.doFilter(wrappedRequest, response);
+		        }
+		        }	 
+		        else {
+		        	// add or action without id
+		        	chain.doFilter(req, resp);
+		        }
+	    }else {
+	    	//for all urls of resource
+	    	chain.doFilter(req, resp);
+	    }
+	    }
+	    
+	}
+
+	public boolean PermitPage(int role, String url) throws SQLException {
+		Connection conn = null;
+		String name = "", query = "";
+		ResultSet resultSet = null;
+		conn = getConnection();
+		Statement stmtp = conn.createStatement();
+
+		query = "SELECT rpm.role_id, mm.name as module_name, pm.name as page_name, pm.url as page_url "
+				+ "FROM public.permission rpm " + "JOIN public.module_master mm ON rpm.module_id = mm.id "
+				+ "JOIN public.page_master pm ON rpm.page_id = pm.id " + "WHERE rpm.role_id = '" + role + "' "
+				+ "AND rpm.read_allowed = true " ;
+
+		resultSet = stmtp.executeQuery(query);
+		List<Boolean> matchResults = new ArrayList<>();
+
+		while (resultSet.next()) {
+
+			int roleId = resultSet.getInt("role_id");
+			String moduleName = resultSet.getString("module_name");
+			String pageName = resultSet.getString("page_name");
+			String pageUrl = resultSet.getString("page_url");
+
+			boolean isMatch = url.contains(pageUrl);
+			matchResults.add(isMatch);
+
+		}
+		resultSet.close();
+		stmtp.close();
+		conn.close();
+
+		for (Boolean match : matchResults) {
+			if (match) {
+				return true;
+			}
+		}
+		return false;
+	}
+	public Integer descrypt(String encString) {
+		String keyProperty = "@#*&@#$%^&*(**)(*)!@@!##";
+		StringBuilder decString= new StringBuilder();
+		int length = encString.length();
+		 String keySubstring = keyProperty.substring(0, Math.min(length, keyProperty.length()));
+		 for (int i = 0; i < keySubstring.length(); i++) {
+			 char encryptedChar = (char) (encString.charAt(i) ^ keySubstring.charAt(i));
+			  decString.append((char) encryptedChar);
+		}
+		Integer decryptedString = Integer.parseInt(decString.toString());
+		 return decryptedString;
+	}
+	public String descryptUpdate(String id) {
+		String key = "@#*&@#$%^&*(**)(*)!@@!##";
+        StringBuilder result = new StringBuilder();
+        int length = id.length();
+        int keyLength = key.length();
+
+        for (int i = 0; i < length; i++) {
+            char idChar = id.charAt(i);
+            char keyChar = key.charAt(i % keyLength); // Wrap around the key
+            char xorChar = (char) (idChar ^ keyChar); // Perform XOR
+            result.append(xorChar);
+        }
+
+        return result.toString();
+	}
+}
+
+------------------------------------------------------------------------------------------------
+CircleController
+
+
+
+@RequestMapping(value = { "/update" }, method = RequestMethod.POST)
+	public String updateCircle(@ModelAttribute("circles") @Valid Circle circles, BindingResult result, ModelMap model,
+			RedirectAttributes redirectAttributes) {
+		Circle circles1 = circleService.findCircleById(circles.getId());
+		model.addAttribute("circleStatus", circleStatus);
+		model.addAttribute("regions", regions);
+		if (result.hasErrors()) {
+			return "circle/edit";
+		}
+		if (circles1.getName() != circles.getName()) {
+			if (!circleService.isCircleNameUnique(circles.getName(), circles.getId())) {
+				FieldError nameError = new FieldError("Circle", "Name", messageSource.getMessage("non.unique.Name",
+						new String[] { circles.getName() }, Locale.getDefault()));
+				result.addError(nameError);
+				return "circle/edit";
+			}
+		}
+
+		circleService.updateCircle(circles);
+		redirectAttributes.addFlashAttribute("success", "Circle " + circles.getName() + " updated successfully");
+		return "redirect:/circle/listCircles";
+	}
+----------------------------------------------------------------------------------------------------------------------------------------
+
+newCircle.jsp
+
+<%@ page language="java" contentType="text/html; charset=ISO-8859-1"
+	pageEncoding="ISO-8859-1" isELIgnored="false"%>
+<%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
+
+<div class="col-md-9 right-sidebar right-section">
+	<div class="main-content">
+		<div class="dash-panel">
+			<button class="menu-toggle">
+				<img src="<c:url value='/resources/img/menu-icon.jpg'/>"
+					alt="toogle">
+			</button>
+			<ol class="breadcrumb">
+				<li><a href="<c:url value='/dashboard' />">DashBoard</a></li>
+				<li class="active"><a
+					href="<c:url value='/circle/listCircles' />">Circle List</a></li>
+				<c:choose>
+					<c:when test="${edit}">
+						<li class="active">Edit Circle</li>
+					</c:when>
+					<c:otherwise>
+						<li class="active">Add Circle</li>
+					</c:otherwise>
+				</c:choose>
+			</ol>
+		</div>
+		<div class="page-content boxMain">
+			<div class="innersection">
+				<div class="sectionwise">
+					<c:choose>
+						<c:when test="${edit}">
+							<h3 class="title">Edit Circle</h3>
+						</c:when>
+						<c:otherwise>
+							<h3 class="title">Add New Circle</h3>
+						</c:otherwise>
+					</c:choose>
+					
+					<form:form method="POST" modelAttribute="circles" action="update" id="form1">
+					<input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}"/>
+						<form:input type="hidden" path="id" id="id" name="id" />
+						<div class="address-enforcing block-m ">
+							<div class="col-md-4">
+								<div>
+									<label for="regionId">Region: </label>
+								</div>
+								<div>
+									<form:select path="regionId" required="true">
+										<form:option value="" label="Select" />
+										<form:options items="${regions}" itemValue="id"
+											itemLabel="name" />
+									</form:select>
+								</div>
+								<div>
+									<form:errors path="regionId" cssClass="error" />
+								</div>
+							</div>
+
+							<div class="col-md-4">
+								<div>
+									<label for="name">Circle Name: </label>
+								</div>
+								<div>
+									<form:input path="name" id="name" required="true" />
+								</div>
+								<div>
+									<form:errors path="name" cssClass="error" />
+								</div>
+							</div>
+
+							<div class="col-md-4">
+								<div>
+									<label for="status">Status:</label>
+								</div>
+								<div>
+									<form:select path="status" items="${circleStatus}" />
+								</div>
+								<div>
+									<form:errors path="status" cssClass="error" />
+								</div>
+							</div>
+						</div>
+
+						<div class="address-enforcing block-m ">
+							<div class="col-md-4"></div>
+							<div>
+								<c:choose>
+									<c:when test="${edit}">
+										<button value="Update" style="margin-top: 50px" onclick="valuedata()">Update</button>
+									</c:when>
+									<c:otherwise>
+										<button value="Save" style="margin-top: 50px">Save</button>
+									</c:otherwise>
+								</c:choose>
+							</div>
+
+						</div>
+					</form:form>
+				</div>
+			</div>
+		</div>
+		<!--PAGE CONTENT ENDS-->
+	</div>
+</div>
+
+<script type="text/javascript">
+
+var header = $("meta[name='_csrf_header']").attr("content");
+var token = $("meta[name='_csrf']").attr("content");
+function valuedata(){
+	var hid =  $("#id").val();
+	var dd = encryptValue(hid);
+	$("#id").val(dd);
+	$('#form1').submit();
+}
+</script>
