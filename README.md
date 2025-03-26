@@ -36,3 +36,15 @@ for datasets:
 
 https://stackoverflow.com/questions/963041/data-sets-for-neural-network-training
 
+
+
+https://www.johnsnowlabs.com/welcome-to-the-healthcare-data-library/
+
+
+https://ferris.libguides.com/datasets/health
+
+
+https://kms-healthcare.com/blog/healthcare-data-sets/
+
+https://forbytes.com/blog/healthcare-datasets-in-ai-powered-medical-apps/
+
