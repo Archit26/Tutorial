@@ -48,3 +48,22 @@ https://kms-healthcare.com/blog/healthcare-data-sets/
 
 https://forbytes.com/blog/healthcare-datasets-in-ai-powered-medical-apps/
 
+
+
+ETL processes
+Java or Python or Scala
+Database Management (SQL)
+Cloud Computing (AWS or Azure or GCP)
+Datawarehousing (Amazon Redshift or Google BigQuery)
+
+
+Certifications to look for-
+	
+	AWS Certified Data Engineer
+	IBM Data Engineering Professional
+	Google Cloud Data Engineer
+	
+	
+ETL Pipelines
+Data-Driven Applications
+
